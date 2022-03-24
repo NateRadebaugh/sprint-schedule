@@ -68,8 +68,8 @@ function Page() {
     return startDateDate ? format(startDateDate, "yyyy-MM-dd") : "";
   }, [startDate]);
 
-  useEffect(() => {
-    window.location.hash = encodeURIComponent(
+  const fullHash = useMemo(() => {
+    return encodeURIComponent(
       JSON.stringify({
         primaryColor: primaryColor,
         startDate: formattedStartDate,
@@ -77,10 +77,23 @@ function Page() {
         text,
       })
     );
-  }, [primaryColor, formattedStartDate, weekdaysPerSprint, text]);
+  }, [primaryColor, formattedStartDate, weekdaysPerSprint, text])
+  useEffect(() => {
+    window.location.hash = fullHash
+  }, [fullHash]);
 
   return (
     <div className="container-fluid">
+      <div className="d-none d-xl-flex align-items-center">
+        <label
+          htmlFor="primaryColor"
+          className="mb-0 mr-2 font-weight-bold"
+        >
+          URL:
+        </label>
+        <input type="text" className="w-100 form-control mb-1" disabled value={`${window.location.origin}/#${fullHash}`}/>
+      </div>
+
       <div className="row">
         <div className="d-none d-xl-block col-xl-4 pr-0">
           <div className="d-flex align-items-center">
