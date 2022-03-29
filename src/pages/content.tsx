@@ -19,16 +19,58 @@ function getActiveDayNumber(
   return mod + 1;
 }
 
+function getCurrentSprintNumber(
+  startDate: Date | undefined,
+  startSprint: number | undefined,
+  weekdaysPerSprint: number | undefined
+) {
+  if (!startDate || !weekdaysPerSprint || startSprint === undefined) {
+    return undefined;
+  }
+
+  const daysSinceStart = differenceInBusinessDays(new Date(), startDate);
+  const sprintsSinceStart = Math.floor(
+    (daysSinceStart - 1) / weekdaysPerSprint
+  );
+  return sprintsSinceStart + startSprint;
+}
+
 function getAugmentedMd(
   md: string,
   startDate: Date | undefined,
+  startSprint: number | undefined,
   weekdaysPerSprint: number | undefined
 ) {
   const activeDayNumber = getActiveDayNumber(startDate, weekdaysPerSprint);
+  const currentSprintNumber = getCurrentSprintNumber(
+    startDate,
+    startSprint,
+    weekdaysPerSprint
+  );
 
   const lines = md.split("\n");
   const newLines = lines.map((line) => {
     const normalizedLine = line.replace(/[^\w:]+/gm, "").toLowerCase();
+
+    if (currentSprintNumber !== undefined) {
+      // Replace [previous sprint] with "Sprint <number>"
+      line = line.replace(
+        "previous sprint",
+        `previous sprint (${currentSprintNumber - 1})`
+      );
+
+      // Replace [current sprint] with "Sprint <number>"
+      line = line.replace(
+        "current sprint",
+        `current sprint (${currentSprintNumber})`
+      );
+      line = line.replace(
+        "this sprint",
+        `this sprint (${currentSprintNumber})`
+      );
+    }
+
+    // Highlight current day
     if (
       activeDayNumber !== undefined &&
       normalizedLine.startsWith("day" + activeDayNumber + ":")
@@ -49,6 +91,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   const {
     primaryColor: rawPrimaryColor,
     startDate: rawStartDate,
+    startSprint: rawStartSprint,
     weekdaysPerSprint: rawWeekdaysPerSprint,
     md,
   } = query;
@@ -56,10 +99,21 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   const parsedDate = parse(`${rawStartDate}`, "yyyy-MM-dd", new Date());
   const startDate =
     rawStartDate && isValid(parsedDate) ? parsedDate : undefined;
+  const startSprint =
+    rawStartSprint !== "" &&
+    rawStartSprint !== undefined &&
+    Number(rawStartSprint) >= 0
+      ? Number(rawStartSprint)
+      : undefined;
   const weekdaysPerSprint =
     Number(rawWeekdaysPerSprint) > 0 ? Number(rawWeekdaysPerSprint) : undefined;
 
-  const augmentedMd = getAugmentedMd(`${md}`, startDate, weekdaysPerSprint);
+  const augmentedMd = getAugmentedMd(
+    `${md}`,
+    startDate,
+    startSprint,
+    weekdaysPerSprint
+  );
 
   const { code, frontmatter } = await bundleMDX({
     source: `${augmentedMd}`,
@@ -103,7 +157,7 @@ export default function Page({ primaryColor, code }: PageProps) {
         return (
           <blockquote
             style={{ backgroundColor: primaryColor, color: "#fff" }}
-            {...props}
+            {...(props as any)}
           />
         );
       },

@@ -12,6 +12,7 @@ function Page() {
   const gotHashParts: {
     primaryColor: string;
     startDate: string;
+    startSprint: string;
     weekdaysPerSprint: string;
     text: string;
   } = gotHash ? JSON.parse(gotHash) : {};
@@ -22,13 +23,16 @@ function Page() {
   const [startDate, setStartDate] = useState<
     string | number | Date | undefined
   >(gotHashParts.startDate || new Date());
+  const [startSprint, setStartSprint] = useState<string | number | undefined>(
+    gotHashParts.startSprint
+  );
   const [weekdaysPerSprint, setWeekdaysPerSprint] = useState<string>(
     gotHashParts.weekdaysPerSprint || "10"
   );
 
   const [text, setText] = useState(
     gotHashParts.text ||
-`**Day 1:** Functional Team Business Level Testing of current sprint in \`uat\`
+      `**Day 1:** Functional Team Business Level Testing of current sprint in \`uat\`
 
 **Day 2:** Sprint Review of previous sprint
 
@@ -73,25 +77,28 @@ function Page() {
       JSON.stringify({
         primaryColor: primaryColor,
         startDate: formattedStartDate,
+        startSprint: startSprint,
         weekdaysPerSprint,
         text,
       })
     );
-  }, [primaryColor, formattedStartDate, weekdaysPerSprint, text])
+  }, [primaryColor, formattedStartDate, startSprint, weekdaysPerSprint, text]);
   useEffect(() => {
-    window.location.hash = fullHash
+    window.location.hash = fullHash;
   }, [fullHash]);
 
   return (
     <div className="container-fluid">
       <div className="d-none d-xl-flex align-items-center">
-        <label
-          htmlFor="primaryColor"
-          className="mb-0 mr-2 font-weight-bold"
-        >
+        <label htmlFor="primaryColor" className="mb-0 mr-2 font-weight-bold">
           URL:
         </label>
-        <input type="text" className="w-100 form-control mb-1" disabled value={`${window.location.origin}/#${fullHash}`}/>
+        <input
+          type="text"
+          className="w-100 form-control mb-1"
+          disabled
+          value={`${window.location.origin}/#${fullHash}`}
+        />
       </div>
 
       <div className="row">
@@ -124,6 +131,17 @@ function Page() {
             />
           </div>
           <div className="d-flex align-items-center">
+            <label htmlFor="startsprint" className="mb-0 mr-2 font-weight-bold">
+              Start Sprint:
+            </label>
+            <input
+              id="startsprint"
+              type="number"
+              value={startSprint}
+              onChange={(e) => setStartSprint(e.target.value)}
+            />
+          </div>
+          <div className="d-flex align-items-center">
             <label
               htmlFor="weekdayspersprint"
               className="mb-0 mr-2 font-weight-bold"
@@ -149,6 +167,8 @@ function Page() {
               primaryColor
             )}&startDate=${encodeURIComponent(
               `${formattedStartDate}`
+            )}&startSprint=${encodeURIComponent(
+              `${startSprint}`
             )}&weekdaysPerSprint=${encodeURIComponent(
               weekdaysPerSprint
             )}&md=${encodeURIComponent(text)}`}
