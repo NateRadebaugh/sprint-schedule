@@ -137,6 +137,7 @@ function Page() {
             <input
               id="startsprint"
               type="number"
+              min={0}
               value={startSprint}
               onChange={(e) => setStartSprint(e.target.value)}
             />
@@ -151,6 +152,7 @@ function Page() {
             <input
               id="weekdayspersprint"
               type="number"
+              min={1}
               value={weekdaysPerSprint}
               onChange={(e) => setWeekdaysPerSprint(e.target.value)}
             />

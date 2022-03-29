@@ -29,9 +29,7 @@ function getCurrentSprintNumber(
   }
 
   const daysSinceStart = differenceInBusinessDays(new Date(), startDate);
-  const sprintsSinceStart = Math.floor(
-    (daysSinceStart - 1) / weekdaysPerSprint
-  );
+  const sprintsSinceStart = Math.floor(daysSinceStart / weekdaysPerSprint);
   return sprintsSinceStart + startSprint;
 }
 
@@ -53,11 +51,18 @@ function getAugmentedMd(
     const normalizedLine = line.replace(/[^\w:]+/gm, "").toLowerCase();
 
     if (currentSprintNumber !== undefined) {
-      // Replace [previous sprint] with "Sprint <number>"
-      line = line.replace(
-        "previous sprint",
-        `previous sprint (${currentSprintNumber - 1})`
-      );
+      if (currentSprintNumber > 0) {
+        // Replace [previous sprint] with "Sprint <number>"
+        line = line.replace(
+          "previous sprint",
+          `previous sprint (${currentSprintNumber - 1})`
+        );
+      } else {
+        line = line.replace(
+          "previous sprint",
+          `previous sprint (_N/A_)`
+        );
+      }
 
       // Replace [current sprint] with "Sprint <number>"
       line = line.replace(
