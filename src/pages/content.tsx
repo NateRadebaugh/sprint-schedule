@@ -53,12 +53,11 @@ function getAugmentedMd(
 
     if (currentSprintNumber !== undefined) {
       if (currentSprintNumber > 0) {
+        const prevSprintNumber = currentSprintNumber - 1;
         // Replace [previous sprint] with "Sprint <number>"
         line = line.replace(
           "previous sprint",
-          `<span class="prev-sprint">previous sprint (${
-            currentSprintNumber - 1
-          })</span>`
+          `<span class="prev-sprint">previous sprint \`[${prevSprintNumber}]\`</span>`
         );
       } else {
         line = line.replace(
@@ -70,11 +69,11 @@ function getAugmentedMd(
       // Replace [current sprint] with "Sprint <number>"
       line = line.replace(
         "current sprint",
-        `<span class="current-sprint">current sprint (${currentSprintNumber})</span>`
+        `<span class="current-sprint">current sprint \`[${currentSprintNumber}]\`</span>`
       );
       line = line.replace(
         "this sprint",
-        `<span class="current-sprint">this sprint (${currentSprintNumber})</span>`
+        `<span class="current-sprint">this sprint \`[${currentSprintNumber}]\`</span>`
       );
     }
 
