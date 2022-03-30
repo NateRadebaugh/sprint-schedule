@@ -47,6 +47,7 @@ function getAugmentedMd(
   );
 
   const lines = md.split("\n");
+  let isCurrentDay = false;
   const newLines = lines.map((line) => {
     const normalizedLine = line.replace(/[^\w:]+/gm, "").toLowerCase();
 
@@ -55,38 +56,49 @@ function getAugmentedMd(
         // Replace [previous sprint] with "Sprint <number>"
         line = line.replace(
           "previous sprint",
-          `previous sprint (${currentSprintNumber - 1})`
+          `<span class="prev-sprint">previous sprint (${
+            currentSprintNumber - 1
+          })</span>`
         );
       } else {
         line = line.replace(
           "previous sprint",
-          `previous sprint (_N/A_)`
+          `<span class="prev-sprint">previous sprint (_N/A_)</span>`
         );
       }
 
       // Replace [current sprint] with "Sprint <number>"
       line = line.replace(
         "current sprint",
-        `current sprint (${currentSprintNumber})`
+        `<span class="current-sprint">current sprint (${currentSprintNumber})</span>`
       );
       line = line.replace(
         "this sprint",
-        `this sprint (${currentSprintNumber})`
+        `<span class="current-sprint">this sprint (${currentSprintNumber})</span>`
       );
     }
 
     // Highlight current day
-    if (
+    const isDayLine = normalizedLine.startsWith("day");
+    const isCurrentDayLine =
       activeDayNumber !== undefined &&
-      normalizedLine.startsWith("day" + activeDayNumber + ":")
-    ) {
+      normalizedLine.startsWith("day" + activeDayNumber + ":");
+    if (isDayLine && !isCurrentDayLine) {
+      isCurrentDay = false;
+    } else if (isDayLine && isCurrentDayLine) {
+      isCurrentDay = true;
+    }
+    if (isCurrentDay) {
       return ">" + line;
     }
 
     return line;
   });
 
-  return newLines.join("\n");
+  return (
+    `<div><big><strong><span class="current-sprint">Current Sprint ${currentSprintNumber}</span></strong></big></div>\n` +
+    newLines.join("\n")
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (

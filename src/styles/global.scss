@@ -22,3 +22,21 @@ ul,
 dl {
   margin-bottom: 0;
 }
+
+*[class$="-sprint"] {
+  border-radius: 6px;
+  padding-left: 3px;
+  padding-bottom: 2px;
+  padding-right: 3px;
+  margin-bottom: -2px;
+}
+
+.prev-sprint {
+  background-color: #fff7ed;
+  color: #7c2d12;
+}
+
+.current-sprint {
+  background-color: #ecfdf5;
+  color: #064e3b;
+}
