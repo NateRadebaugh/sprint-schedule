@@ -31,23 +31,23 @@ function getAugmentedMd(
         // Replace [previous sprint] with "Sprint <number>"
         line = line.replace(
           "previous sprint",
-          `<span class="prev-sprint">previous sprint \`[${prevSprintNumber}]\`</span>`
+          `<span className="prev-sprint">previous sprint \`[${prevSprintNumber}]\`</span>`
         );
       } else {
         line = line.replace(
           "previous sprint",
-          `<span class="prev-sprint">previous sprint (_N/A_)</span>`
+          `<span className="prev-sprint">previous sprint (_N/A_)</span>`
         );
       }
 
       // Replace [current sprint] with "Sprint <number>"
       line = line.replace(
         "current sprint",
-        `<span class="current-sprint">current sprint \`[${currentSprintNumber}]\`</span>`
+        `<span className="current-sprint">current sprint \`[${currentSprintNumber}]\`</span>`
       );
       line = line.replace(
         "this sprint",
-        `<span class="current-sprint">this sprint \`[${currentSprintNumber}]\`</span>`
+        `<span className="current-sprint">this sprint \`[${currentSprintNumber}]\`</span>`
       );
     }
 
@@ -70,7 +70,7 @@ function getAugmentedMd(
 
   return (
     (currentSprintNumber !== undefined && currentSprintNumber >= 0
-      ? `<div><big><strong><span class="current-sprint">Current Sprint ${currentSprintNumber}</span></strong></big></div>\n`
+      ? `<div><big><strong><span className="current-sprint">Current Sprint ${currentSprintNumber}</span></strong></big></div>\n`
       : "") + newLines.join("\n")
   );
 }
