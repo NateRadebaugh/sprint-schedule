@@ -5,16 +5,18 @@ import format from "date-fns/format";
 
 import "@nateradebaugh/react-datetime/dist/css/styles.css";
 import isWeekend from "date-fns/isWeekend";
+import isValid from "date-fns/isValid";
+import isDate from "date-fns/isDate";
 
 function Page() {
   let gotHash = decodeURIComponent(window.location.hash.replace(/^#/, ""));
 
   const gotHashParts: {
-    primaryColor: string;
-    startDate: string;
-    startSprint: string;
-    weekdaysPerSprint: string;
-    text: string;
+    primaryColor?: string;
+    startDate?: string;
+    startSprint?: string;
+    weekdaysPerSprint?: string;
+    text?: string;
   } = gotHash ? JSON.parse(gotHash) : {};
 
   const [primaryColor, setPrimaryColor] = useState(
@@ -22,7 +24,7 @@ function Page() {
   );
   const [startDate, setStartDate] = useState<
     string | number | Date | undefined
-  >(gotHashParts.startDate || new Date());
+  >(gotHashParts.startDate || undefined);
   const [startSprint, setStartSprint] = useState<string | number | undefined>(
     gotHashParts.startSprint
   );
@@ -66,10 +68,14 @@ function Page() {
 
   const formattedStartDate = useMemo(() => {
     const startDateDate =
-      typeof startDate === "string"
+      startDate && typeof startDate === "string"
         ? parse(startDate, "yyyy-MM-dd", new Date())
-        : startDate;
-    return startDateDate ? format(startDateDate, "yyyy-MM-dd") : "";
+        : isDate(startDate) && isValid(startDate)
+        ? (startDate as Date)
+        : undefined;
+    return startDateDate && isValid(startDateDate)
+      ? format(startDateDate, "yyyy-MM-dd")
+      : "";
   }, [startDate]);
 
   const fullHash = useMemo(() => {

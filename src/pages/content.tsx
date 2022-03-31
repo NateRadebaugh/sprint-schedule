@@ -1,37 +1,11 @@
-import { GetServerSideProps } from "next";
-import { bundleMDX } from "mdx-bundler";
-import React, { useMemo } from "react";
 import { getMDXComponent } from "mdx-bundler/client";
-import parse from "date-fns/parse";
-import differenceInBusinessDays from "date-fns/differenceInBusinessDays";
 import isValid from "date-fns/isValid";
-
-function getActiveDayNumber(
-  startDate: Date | undefined,
-  weekdaysPerSprint: number | undefined
-) {
-  if (!startDate || !weekdaysPerSprint) {
-    return undefined;
-  }
-
-  const daysSinceStart = differenceInBusinessDays(new Date(), startDate);
-  const mod = daysSinceStart % weekdaysPerSprint;
-  return mod + 1;
-}
-
-function getCurrentSprintNumber(
-  startDate: Date | undefined,
-  startSprint: number | undefined,
-  weekdaysPerSprint: number | undefined
-) {
-  if (!startDate || !weekdaysPerSprint || startSprint === undefined) {
-    return undefined;
-  }
-
-  const daysSinceStart = differenceInBusinessDays(new Date(), startDate);
-  const sprintsSinceStart = Math.floor(daysSinceStart / weekdaysPerSprint);
-  return sprintsSinceStart + startSprint;
-}
+import parse from "date-fns/parse";
+import { bundleMDX } from "mdx-bundler";
+import { GetServerSideProps } from "next";
+import { useMemo } from "react";
+import getActiveDayNumber from "../lib/getActiveDayNumber";
+import getCurrentSprintNumber from "../lib/getCurrentSprintNumber";
 
 function getAugmentedMd(
   md: string,
@@ -95,8 +69,9 @@ function getAugmentedMd(
   });
 
   return (
-    `<div><big><strong><span class="current-sprint">Current Sprint ${currentSprintNumber}</span></strong></big></div>\n` +
-    newLines.join("\n")
+    (currentSprintNumber !== undefined && currentSprintNumber >= 0
+      ? `<div><big><strong><span class="current-sprint">Current Sprint ${currentSprintNumber}</span></strong></big></div>\n`
+      : "") + newLines.join("\n")
   );
 }
 
@@ -112,7 +87,9 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     md,
   } = query;
   const primaryColor = rawPrimaryColor || "#ffc107";
-  const parsedDate = parse(`${rawStartDate}`, "yyyy-MM-dd", new Date());
+  const parsedDate = rawStartDate
+    ? parse(`${rawStartDate}`, "yyyy-MM-dd", new Date())
+    : undefined;
   const startDate =
     rawStartDate && isValid(parsedDate) ? parsedDate : undefined;
   const startSprint =
