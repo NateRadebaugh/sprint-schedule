@@ -3,7 +3,7 @@ import isValid from "date-fns/isValid";
 import parse from "date-fns/parse";
 import { bundleMDX } from "mdx-bundler";
 import { GetServerSideProps } from "next";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import getActiveDayNumber from "../lib/getActiveDayNumber";
 import getCurrentSprintNumber from "../lib/getCurrentSprintNumber";
 
@@ -48,6 +48,17 @@ function getAugmentedMd(
       line = line.replace(
         "this sprint",
         `<span className="current-sprint">this sprint \`[${currentSprintNumber}]\`</span>`
+      );
+
+      // Replace [next sprint] with "Sprint <number>"
+      const nextSprintNumber = currentSprintNumber + 1;
+      line = line.replace(
+        "next sprint",
+        `<span className="next-sprint">next sprint \`[${nextSprintNumber}]\`</span>`
+      );
+      line = line.replace(
+        "following sprint",
+        `<span className="next-sprint">following sprint \`[${nextSprintNumber}]\`</span>`
       );
     }
 
@@ -123,7 +134,7 @@ interface PageProps {
   code: string;
 }
 
-export default function Page({ primaryColor, code }: PageProps) {
+export function ClientPage({ primaryColor, code }: PageProps) {
   const Component = useMemo(() => getMDXComponent(code), [code]);
 
   const Code = useMemo(
@@ -162,4 +173,18 @@ export default function Page({ primaryColor, code }: PageProps) {
       <Component components={{ code: Code, blockquote: Blockquote }} />
     </>
   );
+}
+
+export default function Page(props: PageProps) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  if (!ready) {
+    return null;
+  }
+
+  return <ClientPage {...props} />;
 }
