@@ -12,19 +12,19 @@
     "@nateradebaugh/react-datetime": "^4.5.1",
     "bootstrap": "^5.2.3",
     "date-fns": "^2.29.3",
-    "dayjs": "^1.11.6",
-    "esbuild": "^0.15.15",
+    "dayjs": "^1.11.7",
+    "esbuild": "^0.16.10",
     "mdx-bundler": "^9.0.1",
-    "next": "^13.0.4",
+    "next": "^13.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.9",
-    "@types/react": "^18.0.25",
-    "eslint": "^8.28.0",
-    "eslint-config-next": "^13.0.4",
-    "sass": "^1.56.1",
-    "typescript": "^4.9.3"
+    "@types/node": "^18.11.17",
+    "@types/react": "^18.0.26",
+    "eslint": "^8.30.0",
+    "eslint-config-next": "^13.0.7",
+    "sass": "^1.57.1",
+    "typescript": "^4.9.4"
   }
 }
