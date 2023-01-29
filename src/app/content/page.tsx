@@ -1,11 +1,8 @@
-import { getMDXComponent } from "mdx-bundler/client";
 import isValid from "date-fns/isValid";
 import parse from "date-fns/parse";
-import { bundleMDX } from "mdx-bundler";
-import { GetServerSideProps } from "next";
-import { useEffect, useMemo, useState } from "react";
-import getActiveDayNumber from "../lib/getActiveDayNumber";
-import getCurrentSprintNumber from "../lib/getCurrentSprintNumber";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import getActiveDayNumber from "../../lib/getActiveDayNumber";
+import getCurrentSprintNumber from "../../lib/getCurrentSprintNumber";
 
 function getAugmentedMd(
   md: string,
@@ -86,17 +83,18 @@ function getAugmentedMd(
   );
 }
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context
-) => {
-  const { query } = context;
+export default async function ClientPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | undefined };
+}) {
   const {
     primaryColor: rawPrimaryColor,
     startDate: rawStartDate,
     startSprint: rawStartSprint,
     weekdaysPerSprint: rawWeekdaysPerSprint,
-    md,
-  } = query;
+    md: md,
+  } = searchParams ?? {};
   const primaryColor = rawPrimaryColor || "#ffc107";
   const parsedDate = rawStartDate
     ? parse(`${rawStartDate}`, "yyyy-MM-dd", new Date())
@@ -119,72 +117,34 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     weekdaysPerSprint
   );
 
-  const { code, frontmatter } = await bundleMDX({
-    source: `${augmentedMd}`,
-  });
-
-  const pageProps: PageProps = { primaryColor: `${primaryColor}`, code };
-  return {
-    props: pageProps,
-  };
-};
-
-interface PageProps {
-  primaryColor: string;
-  code: string;
-}
-
-export function ClientPage({ primaryColor, code }: PageProps) {
-  const Component = useMemo(() => getMDXComponent(code), [code]);
-
-  const Code = useMemo(
-    () =>
-      function Code(
-        props: React.DetailedHTMLProps<
-          React.HTMLAttributes<HTMLElement>,
-          HTMLElement
-        >
-      ) {
-        return <code style={{ color: primaryColor }} {...props} />;
-      },
-    [primaryColor]
-  );
-
-  const Blockquote = useMemo(
-    () =>
-      function Blockquote(
-        props: React.DetailedHTMLProps<
-          React.HTMLAttributes<HTMLElement>,
-          HTMLElement
-        >
-      ) {
-        return (
-          <blockquote
-            style={{ backgroundColor: primaryColor, color: "#fff" }}
-            {...(props as any)}
-          />
-        );
-      },
-    [primaryColor]
-  );
-
-  return (
-    <>
-      <Component components={{ code: Code, blockquote: Blockquote }} />
-    </>
-  );
-}
-
-export default function Page(props: PageProps) {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  if (!ready) {
-    return null;
+  function Code(
+    props: React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement>,
+      HTMLElement
+    >
+  ) {
+    return <code style={{ color: primaryColor }} {...props} />;
   }
 
-  return <ClientPage {...props} />;
+  function Blockquote(
+    props: React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement>,
+      HTMLElement
+    >
+  ) {
+    return (
+      <blockquote
+        style={{ backgroundColor: primaryColor, color: "#fff" }}
+        {...(props as any)}
+      />
+    );
+  }
+
+  return (
+    // @ts-expect-error Server Component
+    <MDXRemote
+      source={augmentedMd}
+      components={{ code: Code, blockquote: Blockquote }}
+    />
+  );
 }
