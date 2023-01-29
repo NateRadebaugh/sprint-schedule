@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "now-build": "next build",
     "dev": "next",
     "build": "next build",
     "lint": "next lint"
