@@ -170,7 +170,10 @@ function Page() {
             onChange={(e) => setText(e.target.value)}
           ></textarea>
         </div>
-        <div className="col-xl-8" style={{ minHeight: "100vh" }}>
+        <div
+          className="col-xl-8"
+          style={{ marginTop: "34px", minHeight: "calc(100vh - 34px)" }}
+        >
           <iframe
             src={`/content?primaryColor=${encodeURIComponent(
               primaryColor
